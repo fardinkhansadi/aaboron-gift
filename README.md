@@ -60,3 +60,4 @@ The response tells you whether it is valid, its discount, and whether it has alr
 - The code is checked server-side at redemption; don't honour a screenshot alone without verifying the code.
 - A claim token is a bearer link: anyone who gets that package's URL can claim it. It is intended for the recipient, so don't publish claim URLs publicly.
 - This starter has no admin dashboard or bulk QR image generator. Generate QR images from each returned URL using a QR generator, and test every print.
+Deployment configuration refresh.
