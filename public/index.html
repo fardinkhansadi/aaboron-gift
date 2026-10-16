@@ -1,0 +1,150 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="theme-color" content="#e9eadc">
+<title>A little gift for you · aaboron.uss</title>
+<style>
+:root{color-scheme:light;--cream:#f7f4e9;--paper:#fffdf7;--green:#536b50;--deep:#2f4432;--sage:#cbd4bd;--ink:#29352b;--muted:#6e786a;--line:#dfe3d5;--gold:#b99a63}
+*{box-sizing:border-box}body{margin:0;background:var(--cream);color:var(--ink);font-family:Georgia,"Times New Roman",serif;min-height:100vh}
+button{font:inherit;cursor:pointer}.page{min-height:100vh;display:flex;flex-direction:column;align-items:center;padding:24px 18px 30px;overflow:hidden;position:relative}
+.page:before,.page:after{content:"";position:fixed;width:220px;height:220px;border:1px solid #d8ddcc;border-radius:50%;pointer-events:none;opacity:.65}
+.page:before{top:-110px;left:-100px}.page:after{bottom:-130px;right:-90px}
+.brand{font-family:Arial,sans-serif;font-size:13px;letter-spacing:.2em;text-transform:lowercase;color:var(--deep);margin:8px 0 32px}
+.brand b{font-weight:700}.eyebrow{font:10px Arial,sans-serif;letter-spacing:.22em;text-transform:uppercase;color:var(--muted);margin:0 0 13px}
+h1{font-size:clamp(32px,7vw,47px);font-weight:400;line-height:1.1;text-align:center;margin:0 0 12px;letter-spacing:-.04em}
+.sub{font-size:15px;line-height:1.6;text-align:center;color:var(--muted);max-width:310px;margin:0 auto}
+.stage{width:min(100%,410px);margin:28px auto 0;display:flex;flex-direction:column;align-items:center}
+.box-button{border:0;background:transparent;padding:0;display:block;width:250px;max-width:75vw;position:relative;transition:transform .25s ease;filter:drop-shadow(0 16px 14px #34452a1c)}
+.box-button:hover{transform:translateY(-4px)}.box-button:focus-visible{outline:3px solid var(--gold);outline-offset:8px;border-radius:12px}
+.gift{width:100%;height:auto;display:block;overflow:visible}.hint{font:11px Arial,sans-serif;letter-spacing:.13em;text-transform:uppercase;color:var(--green);margin-top:17px}
+.result{display:none;text-align:center;width:100%;animation:rise .55s ease both}.result.show{display:block}
+.prize-card{background:var(--paper);border:1px solid var(--line);border-radius:4px;padding:28px 20px 25px;position:relative;box-shadow:0 12px 35px #33432a0b}
+.prize-card:before{content:"";position:absolute;inset:7px;border:1px solid #e8e9df;pointer-events:none}
+.percent{font-size:clamp(57px,15vw,78px);line-height:1;color:var(--green);letter-spacing:-.06em;margin:8px 0 4px}
+.off{font:11px Arial,sans-serif;letter-spacing:.26em;color:var(--green)}
+.note{white-space:pre-line;font-size:16px;line-height:1.8;margin:24px 0 18px;color:#4c5949}
+.code-label{font:10px Arial,sans-serif;letter-spacing:.18em;text-transform:uppercase;color:var(--muted);margin-bottom:8px}
+.code{font:700 16px Arial,sans-serif;letter-spacing:.13em;background:#edf0e6;border:1px dashed #aebba5;padding:12px 8px;display:inline-block;min-width:205px;color:var(--deep)}
+.copy{border:1px solid var(--green);background:var(--green);color:#fffdf7;padding:12px 18px;font:11px Arial,sans-serif;letter-spacing:.12em;text-transform:uppercase;margin-top:13px;transition:background .2s}
+.copy:hover{background:var(--deep)}.fine{font:11px/1.6 Arial,sans-serif;color:var(--muted);margin:18px auto 0;max-width:290px}
+.again{border:0;background:transparent;color:var(--muted);text-decoration:underline;text-underline-offset:4px;font:12px Arial,sans-serif;margin-top:18px}
+.footer{margin-top:auto;padding-top:35px;font:10px Arial,sans-serif;letter-spacing:.13em;color:#7a8574;text-align:center}
+.spark{position:absolute;top:15%;left:14%;color:var(--gold);font-size:20px;animation:twinkle 2.4s infinite}.spark.s2{top:35%;left:auto;right:11%;animation-delay:.8s}.spark.s3{top:63%;left:12%;animation-delay:1.2s}
+@keyframes rise{from{opacity:0;transform:translateY(12px)}to{opacity:1;transform:translateY(0)}}@keyframes twinkle{0%,100%{opacity:.35;transform:scale(.85)}50%{opacity:1;transform:scale(1.12)}}
+@media(prefers-reduced-motion:reduce){*,*:before,*:after{animation:none!important;transition:none!important}}
+</style>
+</head>
+<body>
+<main class="page">
+  <span class="spark" aria-hidden="true">✳</span><span class="spark s2" aria-hidden="true">✧</span><span class="spark s3" aria-hidden="true">✳</span>
+  <div class="brand">aaboron.<b>uss</b></div>
+  <p class="eyebrow" id="eyebrow">a little something, just for you</p>
+  <h1 id="heading">Your little<br>surprise awaits.</h1>
+  <p class="sub" id="intro">A small thank-you for choosing us. Tap the gift to unwrap a little extra love.</p>
+  <section class="stage" aria-live="polite">
+    <button class="box-button" id="openGift" aria-label="Open your gift box">
+      <svg class="gift" viewBox="0 0 280 270" role="img" aria-label="Muted green gift box with a cream ribbon">
+        <ellipse cx="140" cy="238" rx="91" ry="13" fill="#d9ddcf"/>
+        <path d="M88 70 C44 14 91 6 130 62 C138 73 136 87 126 94 C115 90 102 82 88 70Z" fill="#f7f4e9" stroke="#d7ddcd" stroke-width="2"/>
+        <path d="M148 65 C188 8 239 24 191 76 C179 87 166 91 151 95 C143 85 142 76 148 65Z" fill="#f7f4e9" stroke="#d7ddcd" stroke-width="2"/>
+        <path d="M134 80 C143 67 158 73 160 84 C161 97 147 105 137 98 C127 92 127 85 134 80Z" fill="#e6e8d8" stroke="#cbd4bd" stroke-width="2"/>
+        <path d="M59 105 L140 81 L221 105 L140 132Z" fill="#71856a"/>
+        <path d="M59 105 L140 132 L140 225 L59 197Z" fill="#536b50"/>
+        <path d="M140 132 L221 105 L221 197 L140 225Z" fill="#3e5740"/>
+        <path d="M124 128 L156 128 L156 218 L124 220Z" fill="#f7f4e9"/>
+        <path d="M59 105 L140 132 L140 146 L59 119Z" fill="#d9dfce"/>
+        <path d="M140 132 L221 105 L221 119 L140 146Z" fill="#e8eadc"/>
+        <path d="M59 105 L140 81 L221 105 L140 132Z" fill="#809278"/>
+        <path d="M124 96 L156 96 L156 130 L124 130Z" fill="#f7f4e9"/>
+        <path d="M124 96 L140 101 L156 96 L140 91Z" fill="#fffdf7"/>
+        <path d="M140 132 L140 225" stroke="#d9ddcf" stroke-width="1" opacity=".5"/>
+        <path d="M70 114 L116 129" stroke="#a7b59b" stroke-width="1" opacity=".45"/>
+        <path d="M163 127 L211 111" stroke="#a7b59b" stroke-width="1" opacity=".35"/>
+      </svg>
+    </button>
+    <div class="hint" id="hint">Tap to open your gift ♡</div>
+    <div class="result" id="result">
+      <div class="prize-card">
+        <p class="eyebrow">a little thank-you from us</p>
+        <div class="percent" id="percent">10%</div>
+        <div class="off">OFF YOUR NEXT ORDER</div>
+        <p class="note" id="note"></p>
+        <div class="code-label">Your unique discount code</div>
+        <div class="code" id="code">AAB-XXXX-XXXX</div><br>
+        <button class="copy" id="copyBtn">Copy my code</button>
+        <p class="fine">Keep your code safe and share it only when placing your next order. Discount terms should be confirmed with aaboron.uss.</p>
+      </div>
+      <button class="again" id="resetBtn" type="button">Close surprise</button>
+    </div>
+  </section>
+  <footer class="footer">PRE-LOVED WITH LOVE · aaboron.uss</footer>
+</main>
+<script>
+const CUSTOMER_NOTE = "A little gift, just for you ♡\\nThank you for being part of our story.\\nWith love, Team aaboron.uss";
+const params = new URLSearchParams(location.search);
+const claimToken = params.get("claim");
+const openedKey = "aaboron_gift_" + (claimToken || "demo");
+const giftButton = document.getElementById("openGift");
+const result = document.getElementById("result");
+const hint = document.getElementById("hint");
+const note = document.getElementById("note");
+const percent = document.getElementById("percent");
+const codeEl = document.getElementById("code");
+const copyBtn = document.getElementById("copyBtn");
+let currentCode = "";
+
+async function reveal() {
+  if (!claimToken) {
+    alert("This gift link is missing its unique package token. Please scan the QR code inside your aaboron.uss package.");
+    return;
+  }
+  giftButton.disabled = true;
+  hint.textContent = "Unwrapping your surprise…";
+  try {
+    const response = await fetch("/api/claim", {
+      method: "POST",
+      headers: {"Content-Type":"application/json"},
+      body: JSON.stringify({token: claimToken})
+    });
+    const data = await response.json();
+    if (!response.ok) throw new Error(data.error || "Could not open your gift.");
+    percent.textContent = data.discount + "%";
+    note.textContent = CUSTOMER_NOTE;
+    currentCode = data.code;
+    codeEl.textContent = currentCode;
+    giftButton.style.display = "none";
+    hint.style.display = "none";
+    document.getElementById("eyebrow").textContent = "you found a little something";
+    document.getElementById("heading").innerHTML = "A little gift,<br>just for you.";
+    document.getElementById("intro").style.display = "none";
+    result.classList.add("show");
+  } catch (error) {
+    hint.textContent = error.message;
+    giftButton.disabled = false;
+  }
+}
+giftButton.addEventListener("click", reveal);
+copyBtn.addEventListener("click", async () => {
+  try {
+    await navigator.clipboard.writeText(currentCode);
+    copyBtn.textContent = "Copied with love ✓";
+  } catch (_) {
+    const range = document.createRange(); range.selectNodeContents(codeEl);
+    const selection = window.getSelection(); selection.removeAllRanges(); selection.addRange(range);
+    copyBtn.textContent = "Select and copy your code";
+  }
+});
+document.getElementById("resetBtn").addEventListener("click", () => {
+  result.classList.remove("show");
+  giftButton.style.display = "block";
+  hint.style.display = "block";
+  document.getElementById("eyebrow").textContent = "a little something, just for you";
+  document.getElementById("heading").innerHTML = "Your little<br>surprise awaits.";
+  document.getElementById("intro").style.display = "block";
+  copyBtn.textContent = "Copy my code";
+});
+</script>
+</body>
+</html>
