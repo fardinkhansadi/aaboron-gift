@@ -18,7 +18,7 @@ export async function onRequestPost({ request, env }) {
   const created = [];
   for (let i = 0; i < count; i++) {
     const t = token();
-    await env.DB.prepare("INSERT INTO claims (token, discount) VALUES (?, 5)").bind(t, 5).run();
+    await env.DB.prepare("INSERT INTO claims (token, discount) VALUES (?, 5)").bind(t).run();
     created.push({ token: t, url: `${baseUrl}/?claim=${t}` });
   }
   return json({ created, note: "Each URL is for one package. Keep the URLs private until printed." });
