@@ -1,42 +1,117 @@
-function json(data, status = 200) {
+function json(data, status = 200, extraHeaders = {}) {
   return new Response(JSON.stringify(data), {
     status,
-    headers: { "Content-Type": "application/json; charset=utf-8", "Cache-Control": "no-store" }
+    headers: {
+      "Content-Type": "application/json; charset=utf-8",
+      "Cache-Control": "no-store",
+      ...extraHeaders
+    }
   });
 }
-function randomHex(bytes = 5) {
+
+function randomHex(bytes = 6) {
   const arr = new Uint8Array(bytes);
   crypto.getRandomValues(arr);
   return [...arr].map(x => x.toString(16).padStart(2, "0")).join("").toUpperCase();
 }
+
+function getCookie(request, name) {
+  const cookies = request.headers.get("Cookie") || "";
+  const item = cookies.split(";").map(v => v.trim())
+    .find(v => v.startsWith(name + "="));
+  return item ? item.substring(name.length + 1) : null;
+}
+
+async function hashSession(session) {
+  const data = new TextEncoder().encode(session);
+  const hash = await crypto.subtle.digest("SHA-256", data);
+  return [...new Uint8Array(hash)]
+    .map(b => b.toString(16).padStart(2, "0")).join("");
+}
+
+function secureRandomDiscount() {
+  const value = new Uint32Array(1);
+  crypto.getRandomValues(value);
+  return value[0] < 2147483648 ? 5 : 10;
+}
+
 export async function onRequestPost({ request, env }) {
-  let body;
-  try { body = await request.json(); } catch { return json({ error: "Invalid request." }, 400); }
-  const token = String(body.token || "");
-  if (!/^[A-Fa-f0-9-]{16,80}$/.test(token)) return json({ error: "This gift link is not valid." }, 400);
+  if (!env.DB) return json({ error: "Database unavailable." }, 500);
 
+  let session = getCookie(request, "aab_gift_session");
+  let newSession = false;
+
+  // Create a new browser-session identifier if one does not exist.
+  if (!session || !/^[a-f0-9]{64}$/.test(session)) {
+    session = randomHex(32).toLowerCase();
+    newSession = true;
+  }
+
+  const sessionHash = await hashSession(session);
+
+  // Return the existing reward if this browser session has already claimed.
   const existing = await env.DB.prepare(
-    "SELECT discount, coupon_code FROM claims WHERE token = ? AND claimed_at IS NOT NULL"
-  ).bind(token).first();
-  if (existing) return json({ discount: existing.discount, code: existing.coupon_code, alreadyClaimed: true });
+    "SELECT discount, coupon_code FROM universal_claims WHERE session_hash = ?"
+  ).bind(sessionHash).first();
 
-  const row = await env.DB.prepare("SELECT token FROM claims WHERE token = ?").bind(token).first();
-  if (!row) return json({ error: "This gift link is not valid or has already expired." }, 404);
+  if (existing) {
+    const headers = newSession
+      ? { "Set-Cookie": `aab_gift_session=${session}; Path=/; HttpOnly; Secure; SameSite=Lax` }
+      : {};
 
-  // Random choice and code are generated server-side. Conditional UPDATE makes claiming atomic.
-  const discount = Math.random() < 0.5 ? 5 : 10;
-  const code = `AAB-${randomHex(3)}-${randomHex(3)}`;
-  const now = new Date().toISOString();
-  const result = await env.DB.prepare(
-    "UPDATE claims SET discount = ?, coupon_code = ?, claimed_at = ? WHERE token = ? AND claimed_at IS NULL RETURNING discount, coupon_code"
-  ).bind(discount, code, now, token).first();
+    return json({
+      discount: existing.discount,
+      code: existing.coupon_code,
+      alreadyClaimed: true
+    }, 200, headers);
+  }
 
-  if (result) return json({ discount: result.discount, code: result.coupon_code, alreadyClaimed: false });
+  // Create a unique coupon. Retry if a rare code collision occurs.
+  for (let attempt = 0; attempt < 5; attempt++) {
+    const discount = secureRandomDiscount();
+    const code = `AAB-${randomHex(3)}-${randomHex(3)}`;
 
-  // A concurrent request may have won the claim. Return that same result, never issue a second code.
-  const winner = await env.DB.prepare(
-    "SELECT discount, coupon_code FROM claims WHERE token = ? AND claimed_at IS NOT NULL"
-  ).bind(token).first();
-  if (winner) return json({ discount: winner.discount, code: winner.coupon_code, alreadyClaimed: true });
-  return json({ error: "Please try again." }, 409);
+    try {
+      await env.DB.prepare(`
+        INSERT INTO universal_claims
+          (session_hash, discount, coupon_code)
+        VALUES (?, ?, ?)
+      `).bind(sessionHash, discount, code).run();
+
+      const headers = {
+        "Set-Cookie": `aab_gift_session=${session}; Path=/; HttpOnly; Secure; SameSite=Lax`
+      };
+
+      return json({
+        discount,
+        code,
+        alreadyClaimed: false
+      }, 200, headers);
+
+    } catch (error) {
+      // Another simultaneous request may have claimed this session.
+      const winner = await env.DB.prepare(
+        "SELECT discount, coupon_code FROM universal_claims WHERE session_hash = ?"
+      ).bind(sessionHash).first();
+
+      if (winner) {
+        const headers = newSession
+          ? { "Set-Cookie": `aab_gift_session=${session}; Path=/; HttpOnly; Secure; SameSite=Lax` }
+          : {};
+
+        return json({
+          discount: winner.discount,
+          code: winner.coupon_code,
+          alreadyClaimed: true
+        }, 200, headers);
+      }
+
+      // If the code collided, retry with a new one.
+      if (attempt === 4) {
+        return json({ error: "Could not create your gift. Please try again." }, 500);
+      }
+    }
+  }
+
+  return json({ error: "Please try again." }, 500);
 }
